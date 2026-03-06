@@ -1,0 +1,30 @@
+{
+	"name": "DS_Dynamic_CSV_Fille_Migration_Target",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_CSV",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"TargetFileName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ADLS_Datasets"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().TargetFileName",
+					"type": "Expression"
+				},
+				"folderPath": "ProcessedFiles",
+				"fileSystem": "big"
+			}
+		}
+	}
+}
