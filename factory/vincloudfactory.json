@@ -1,0 +1,9 @@
+{
+	"name": "vincloudfactory",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "bd58ba16-3904-47a0-bc31-32a295d8a5e4",
+		"tenantId": "d1dbf5d4-9a54-4ac6-bf26-9ddc3d158b0a"
+	}
+}
