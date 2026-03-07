@@ -1,0 +1,33 @@
+{
+	"name": "DS_SQL_TABLES",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AZURE_SQL_DATABASE",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"SOURCESCHEMA": {
+				"type": "string"
+			},
+			"SOURCETABLE": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "SQl_DATSETS"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().SOURCESCHEMA",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().SOURCETABLE",
+				"type": "Expression"
+			}
+		}
+	}
+}
