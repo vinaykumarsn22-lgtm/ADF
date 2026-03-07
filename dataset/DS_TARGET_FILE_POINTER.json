@@ -1,0 +1,36 @@
+{
+	"name": "DS_TARGET_FILE_POINTER",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_CSV",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"TARGETFILENAME": {
+				"type": "string"
+			},
+			"TARGETFOLDERNAME": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ADLS_Datasets"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().TARGETFILENAME",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().TARGETFOLDERNAME",
+					"type": "Expression"
+				},
+				"fileSystem": "big"
+			}
+		}
+	}
+}
