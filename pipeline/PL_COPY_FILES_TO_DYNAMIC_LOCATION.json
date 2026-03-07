@@ -48,7 +48,7 @@
 						"value": "@activity('GetFILEMetadataINFO').output.childItems",
 						"type": "Expression"
 					},
-					"batchCount": 8,
+					"batchCount": 15,
 					"activities": [
 						{
 							"name": "IfTYPEISFILE",
@@ -114,7 +114,7 @@
 														"type": "Expression"
 													},
 													"TARGETFOLDERNAME": {
-														"value": "@split(item().name, ',')[1]",
+														"value": "@split(item().name, '.')[1]",
 														"type": "Expression"
 													}
 												}
