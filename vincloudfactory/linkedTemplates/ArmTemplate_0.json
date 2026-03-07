@@ -11,9 +11,25 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_ADLS_CSV'"
 		},
+		"LS_AZURE_SQL_DATABASE_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_AZURE_SQL_DATABASE'"
+		},
 		"LS_ADLS_CSV_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://bigstore456.dfs.core.windows.net/"
+		},
+		"LS_AZURE_SQL_DATABASE_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "vin-server123.database.windows.net"
+		},
+		"LS_AZURE_SQL_DATABASE_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "vin-sql-db"
+		},
+		"LS_AZURE_SQL_DATABASE_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "vinay"
 		}
 	},
 	"variables": {
@@ -32,6 +48,28 @@
 					"accountKey": {
 						"type": "SecureString",
 						"value": "[parameters('LS_ADLS_CSV_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_AZURE_SQL_DATABASE')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('LS_AZURE_SQL_DATABASE_properties_typeProperties_server')]",
+					"database": "[parameters('LS_AZURE_SQL_DATABASE_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": true,
+					"authenticationType": "SQL",
+					"userName": "[parameters('LS_AZURE_SQL_DATABASE_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LS_AZURE_SQL_DATABASE_password')]"
 					}
 				}
 			},
@@ -264,6 +302,81 @@
 						"fileSystem": "big"
 					}
 				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS_CSV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_TABLES')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_AZURE_SQL_DATABASE",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"SOURCESCHEMA": {
+						"type": "string"
+					},
+					"SOURCETABLE": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "SQl_DATSETS"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().SOURCESCHEMA",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().SOURCETABLE",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_AZURE_SQL_DATABASE')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_SQL_TO_PARQUET')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_ADLS_CSV",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TargetFileName": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "SQl_DATSETS"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().TargetFileName",
+							"type": "Expression"
+						},
+						"folderPath": "SqlDatasets",
+						"fileSystem": "big"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS_CSV')]"
@@ -1385,6 +1498,141 @@
 				"[concat(variables('factoryId'), '/datasets/DS_Files_lookup')]",
 				"[concat(variables('factoryId'), '/datasets/DS_SOURCE_FILE_POINTER')]",
 				"[concat(variables('factoryId'), '/datasets/DS_TARGET_FILE_POINTER')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_SQL_TO_ADLS')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "LookInfoTable",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select Table_Schema, Table_Name from Information_SCHEMA.TABLES where Table_Type = 'Base table'",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "DS_SQL_TABLES",
+								"type": "DatasetReference",
+								"parameters": {
+									"SOURCESCHEMA": "\"",
+									"SOURCETABLE": "\""
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEachTable",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "LookInfoTable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('LookInfoTable').output.value",
+								"type": "Expression"
+							},
+							"batchCount": 50,
+							"activities": [
+								{
+									"name": "Copydata",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "DS_SQL_TABLES",
+											"type": "DatasetReference",
+											"parameters": {
+												"SOURCESCHEMA": {
+													"value": "@item().Table_Schema",
+													"type": "Expression"
+												},
+												"SOURCETABLE": {
+													"value": "@item().Table_Name",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "DS_SQL_TO_PARQUET",
+											"type": "DatasetReference",
+											"parameters": {
+												"TargetFileName": {
+													"value": "@concat(toLower(item().Table_Name), formatDateTime(utcNow(), 'yyyymmdd'))",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_TABLES')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SQL_TO_PARQUET')]"
 			]
 		}
 	]

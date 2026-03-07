@@ -11,9 +11,25 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_ADLS_CSV'"
 		},
+		"LS_AZURE_SQL_DATABASE_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_AZURE_SQL_DATABASE'"
+		},
 		"LS_ADLS_CSV_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://bigstore456.dfs.core.windows.net/"
+		},
+		"LS_AZURE_SQL_DATABASE_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "vin-server123.database.windows.net"
+		},
+		"LS_AZURE_SQL_DATABASE_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "vin-sql-db"
+		},
+		"LS_AZURE_SQL_DATABASE_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "vinay"
 		},
 		"containerUri": {
 			"type": "string",
@@ -45,8 +61,20 @@
 					"LS_ADLS_CSV_accountKey": {
 						"value": "[parameters('LS_ADLS_CSV_accountKey')]"
 					},
+					"LS_AZURE_SQL_DATABASE_password": {
+						"value": "[parameters('LS_AZURE_SQL_DATABASE_password')]"
+					},
 					"LS_ADLS_CSV_properties_typeProperties_url": {
 						"value": "[parameters('LS_ADLS_CSV_properties_typeProperties_url')]"
+					},
+					"LS_AZURE_SQL_DATABASE_properties_typeProperties_server": {
+						"value": "[parameters('LS_AZURE_SQL_DATABASE_properties_typeProperties_server')]"
+					},
+					"LS_AZURE_SQL_DATABASE_properties_typeProperties_database": {
+						"value": "[parameters('LS_AZURE_SQL_DATABASE_properties_typeProperties_database')]"
+					},
+					"LS_AZURE_SQL_DATABASE_properties_typeProperties_userName": {
+						"value": "[parameters('LS_AZURE_SQL_DATABASE_properties_typeProperties_userName')]"
 					}
 				}
 			},
