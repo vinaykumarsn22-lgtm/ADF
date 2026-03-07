@@ -110,7 +110,7 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"TargetFileName": {
-											"value": "@concate(tolower(item().Table_Name), formateDateTime(utcNow(),'yyyymmdd'))",
+											"value": "@concat(toLower(item().Table_Name), formatDateTime(utcNow(), 'yyyymmdd'))",
 											"type": "Expression"
 										}
 									}
