@@ -176,7 +176,7 @@
 													]
 												},
 												{
-													"value": "StagedDataset",
+													"value": "StagedDatasets",
 													"activities": [
 														{
 															"name": "CopyinotStaged",
