@@ -1075,6 +1075,317 @@
 				"[concat(variables('factoryId'), '/datasets/DS_Dynamic_CSV_Fille_Migration')]",
 				"[concat(variables('factoryId'), '/datasets/DS_Dynamic_CSV_Fille_Migration_Target')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_SWITCHCASE_DEMO')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetFILES",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "DS_Files_lookup",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "BinaryReadSettings"
+							}
+						}
+					},
+					{
+						"name": "ForEachFILE",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "GetFILES",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('GetFILES').output.childItems",
+								"type": "Expression"
+							},
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "IfFILE",
+									"type": "IfCondition",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(item().type, 'File')",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "Switchcase",
+												"type": "Switch",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"on": {
+														"value": "@pipeline().parameters.FolderName",
+														"type": "Expression"
+													},
+													"cases": [
+														{
+															"value": "RawDataset",
+															"activities": [
+																{
+																	"name": "Copytorawdatasets",
+																	"type": "Copy",
+																	"dependsOn": [],
+																	"policy": {
+																		"timeout": "0.12:00:00",
+																		"retry": 0,
+																		"retryIntervalInSeconds": 30,
+																		"secureOutput": false,
+																		"secureInput": false
+																	},
+																	"userProperties": [],
+																	"typeProperties": {
+																		"source": {
+																			"type": "BinarySource",
+																			"storeSettings": {
+																				"type": "AzureBlobFSReadSettings",
+																				"recursive": true
+																			},
+																			"formatSettings": {
+																				"type": "BinaryReadSettings"
+																			}
+																		},
+																		"sink": {
+																			"type": "BinarySink",
+																			"storeSettings": {
+																				"type": "AzureBlobFSWriteSettings"
+																			}
+																		},
+																		"enableStaging": false
+																	},
+																	"inputs": [
+																		{
+																			"referenceName": "DS_SOURCE_FILE_POINTER",
+																			"type": "DatasetReference",
+																			"parameters": {
+																				"SOURCEFILENAME": {
+																					"value": "@item().name",
+																					"type": "Expression"
+																				}
+																			}
+																		}
+																	],
+																	"outputs": [
+																		{
+																			"referenceName": "DS_TARGET_FILE_POINTER",
+																			"type": "DatasetReference",
+																			"parameters": {
+																				"TARGETFILENAME": {
+																					"value": "@item().name",
+																					"type": "Expression"
+																				},
+																				"TARGETFOLDERNAME": {
+																					"value": "@pipeline().parameters.FolderName",
+																					"type": "Expression"
+																				}
+																			}
+																		}
+																	]
+																},
+																{
+																	"name": "DeleteFilesinRaw",
+																	"type": "Delete",
+																	"dependsOn": [
+																		{
+																			"activity": "Copytorawdatasets",
+																			"dependencyConditions": [
+																				"Succeeded"
+																			]
+																		}
+																	],
+																	"policy": {
+																		"timeout": "0.12:00:00",
+																		"retry": 0,
+																		"retryIntervalInSeconds": 30,
+																		"secureOutput": false,
+																		"secureInput": false
+																	},
+																	"userProperties": [],
+																	"typeProperties": {
+																		"dataset": {
+																			"referenceName": "DS_SOURCE_FILE_POINTER",
+																			"type": "DatasetReference",
+																			"parameters": {
+																				"SOURCEFILENAME": {
+																					"value": "@item().name",
+																					"type": "Expression"
+																				}
+																			}
+																		},
+																		"enableLogging": false,
+																		"storeSettings": {
+																			"type": "AzureBlobFSReadSettings",
+																			"recursive": true,
+																			"enablePartitionDiscovery": false
+																		}
+																	}
+																}
+															]
+														},
+														{
+															"value": "StagedDatasets",
+															"activities": [
+																{
+																	"name": "CopyintoStaged",
+																	"type": "Copy",
+																	"dependsOn": [],
+																	"policy": {
+																		"timeout": "0.12:00:00",
+																		"retry": 0,
+																		"retryIntervalInSeconds": 30,
+																		"secureOutput": false,
+																		"secureInput": false
+																	},
+																	"userProperties": [],
+																	"typeProperties": {
+																		"source": {
+																			"type": "BinarySource",
+																			"storeSettings": {
+																				"type": "AzureBlobFSReadSettings",
+																				"recursive": true
+																			},
+																			"formatSettings": {
+																				"type": "BinaryReadSettings"
+																			}
+																		},
+																		"sink": {
+																			"type": "BinarySink",
+																			"storeSettings": {
+																				"type": "AzureBlobFSWriteSettings"
+																			}
+																		},
+																		"enableStaging": false
+																	},
+																	"inputs": [
+																		{
+																			"referenceName": "DS_SOURCE_FILE_POINTER",
+																			"type": "DatasetReference",
+																			"parameters": {
+																				"SOURCEFILENAME": {
+																					"value": "@item().name",
+																					"type": "Expression"
+																				}
+																			}
+																		}
+																	],
+																	"outputs": [
+																		{
+																			"referenceName": "DS_TARGET_FILE_POINTER",
+																			"type": "DatasetReference",
+																			"parameters": {
+																				"TARGETFILENAME": {
+																					"value": "@item().name",
+																					"type": "Expression"
+																				},
+																				"TARGETFOLDERNAME": {
+																					"value": "@pipeline().parameters.FolderName",
+																					"type": "Expression"
+																				}
+																			}
+																		}
+																	]
+																},
+																{
+																	"name": "DeleteStaged",
+																	"type": "Delete",
+																	"dependsOn": [
+																		{
+																			"activity": "CopyintoStaged",
+																			"dependencyConditions": [
+																				"Succeeded"
+																			]
+																		}
+																	],
+																	"policy": {
+																		"timeout": "0.12:00:00",
+																		"retry": 0,
+																		"retryIntervalInSeconds": 30,
+																		"secureOutput": false,
+																		"secureInput": false
+																	},
+																	"userProperties": [],
+																	"typeProperties": {
+																		"dataset": {
+																			"referenceName": "DS_SOURCE_FILE_POINTER",
+																			"type": "DatasetReference",
+																			"parameters": {
+																				"SOURCEFILENAME": {
+																					"value": "@item().name",
+																					"type": "Expression"
+																				}
+																			}
+																		},
+																		"enableLogging": false,
+																		"storeSettings": {
+																			"type": "AzureBlobFSReadSettings",
+																			"recursive": true,
+																			"enablePartitionDiscovery": false
+																		}
+																	}
+																}
+															]
+														}
+													]
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"FolderName": {
+						"type": "string",
+						"defaultValue": "DefaultFolder"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_Files_lookup')]",
+				"[concat(variables('factoryId'), '/datasets/DS_SOURCE_FILE_POINTER')]",
+				"[concat(variables('factoryId'), '/datasets/DS_TARGET_FILE_POINTER')]"
+			]
 		}
 	]
 }
