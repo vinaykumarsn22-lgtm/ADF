@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_AZURE_SQL_DATABASE'"
 		},
+		"LS_OnPremSqlServer_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_OnPremSqlServer'"
+		},
 		"LS_ADLS_CSV_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://bigstore456.dfs.core.windows.net/"
@@ -30,6 +34,18 @@
 		"LS_AZURE_SQL_DATABASE_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "vinay"
+		},
+		"LS_OnPremSqlServer_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "DESKTOP-R17908G"
+		},
+		"LS_OnPremSqlServer_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "AdventureWorksLT2025"
+		},
+		"LS_OnPremSqlServer_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "vin user"
 		},
 		"containerUri": {
 			"type": "string",
@@ -64,6 +80,9 @@
 					"LS_AZURE_SQL_DATABASE_password": {
 						"value": "[parameters('LS_AZURE_SQL_DATABASE_password')]"
 					},
+					"LS_OnPremSqlServer_password": {
+						"value": "[parameters('LS_OnPremSqlServer_password')]"
+					},
 					"LS_ADLS_CSV_properties_typeProperties_url": {
 						"value": "[parameters('LS_ADLS_CSV_properties_typeProperties_url')]"
 					},
@@ -75,10 +94,39 @@
 					},
 					"LS_AZURE_SQL_DATABASE_properties_typeProperties_userName": {
 						"value": "[parameters('LS_AZURE_SQL_DATABASE_properties_typeProperties_userName')]"
+					},
+					"LS_OnPremSqlServer_properties_typeProperties_server": {
+						"value": "[parameters('LS_OnPremSqlServer_properties_typeProperties_server')]"
+					},
+					"LS_OnPremSqlServer_properties_typeProperties_database": {
+						"value": "[parameters('LS_OnPremSqlServer_properties_typeProperties_database')]"
+					},
+					"LS_OnPremSqlServer_properties_typeProperties_userName": {
+						"value": "[parameters('LS_OnPremSqlServer_properties_typeProperties_userName')]"
 					}
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "vincloudfactory_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'vincloudfactory_ArmTemplate_0')]"
+			]
 		}
 	]
 }

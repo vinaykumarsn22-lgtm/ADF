@@ -11,6 +11,9 @@
 		"LS_AZURE_SQL_DATABASE_password": {
 			"value": ""
 		},
+		"LS_OnPremSqlServer_password": {
+			"value": ""
+		},
 		"LS_ADLS_CSV_properties_typeProperties_url": {
 			"value": "https://bigstore456.dfs.core.windows.net/"
 		},
@@ -22,6 +25,15 @@
 		},
 		"LS_AZURE_SQL_DATABASE_properties_typeProperties_userName": {
 			"value": "vinay"
+		},
+		"LS_OnPremSqlServer_properties_typeProperties_server": {
+			"value": "DESKTOP-R17908G"
+		},
+		"LS_OnPremSqlServer_properties_typeProperties_database": {
+			"value": "AdventureWorksLT2025"
+		},
+		"LS_OnPremSqlServer_properties_typeProperties_userName": {
+			"value": "vin user"
 		},
 		"containerUri": {
 			"value": ""
