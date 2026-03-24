@@ -106,7 +106,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "DS_Onprem_sql_to_ADLS",
+									"referenceName": "DS_Onprem_to_ADLS",
 									"type": "DatasetReference",
 									"parameters": {
 										"Folder": {
