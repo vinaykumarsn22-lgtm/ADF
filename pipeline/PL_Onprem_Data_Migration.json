@@ -46,7 +46,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('LookupINFO').output.values",
+						"value": "@activity('LookupINFO').output.value",
 						"type": "Expression"
 					},
 					"batchCount": 20,
