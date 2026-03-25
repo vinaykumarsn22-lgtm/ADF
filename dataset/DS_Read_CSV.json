@@ -14,6 +14,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "apple_global_sales_dataset.csv",
+				"folderPath": "csv",
 				"fileSystem": "big"
 			},
 			"columnDelimiter": ",",

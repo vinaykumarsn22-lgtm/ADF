@@ -1,0 +1,44 @@
+{
+	"name": "DF_Filter",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_Read_CSV",
+						"type": "DatasetReference"
+					},
+					"name": "sourceDataset"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_CSV_Target",
+						"type": "DatasetReference"
+					},
+					"name": "sinkfiltereddata"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filterQuarterly"
+				}
+			],
+			"scriptLines": [
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sourceDataset",
+				"sourceDataset filter(byName('quarter') =='Q1') ~> filterQuarterly",
+				"filterQuarterly sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkfiltereddata"
+			]
+		}
+	}
+}
