@@ -1,0 +1,21 @@
+{
+	"name": "DS_SQL_DATASET_CUSTOMERS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_CSV",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "customer20262707",
+				"folderPath": "SqlDatasets",
+				"fileSystem": "big"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

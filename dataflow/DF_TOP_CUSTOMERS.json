@@ -6,14 +6,14 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "DS_SQL_DATASETS_CUS",
+						"referenceName": "DS_SQL_DATASET_CUSTOMERS",
 						"type": "DatasetReference"
 					},
 					"name": "Customers"
 				},
 				{
 					"dataset": {
-						"referenceName": "DS_SQL_DATASETS_ORD",
+						"referenceName": "DS_SQL_DATASETS_ORDERS",
 						"type": "DatasetReference"
 					},
 					"name": "orderHeader"
@@ -29,10 +29,37 @@
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     limit: 100,",
-				"     ignoreNoFilesFound: false) ~> Customers",
-				"source(allowSchemaDrift: true,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Customers",
+				"source(output(",
+				"          SalesOrderID as integer,",
+				"          RevisionNumber as integer,",
+				"          OrderDate as timestamp,",
+				"          DueDate as timestamp,",
+				"          ShipDate as timestamp,",
+				"          Status as integer,",
+				"          OnlineOrderFlag as boolean,",
+				"          SalesOrderNumber as string,",
+				"          PurchaseOrderNumber as string,",
+				"          AccountNumber as string,",
+				"          CustomerID as integer,",
+				"          ShipToAddressID as integer,",
+				"          BillToAddressID as integer,",
+				"          ShipMethod as string,",
+				"          CreditCardApprovalCode as string,",
+				"          SubTotal as decimal(19,4),",
+				"          TaxAmt as decimal(19,4),",
+				"          Freight as decimal(19,4),",
+				"          TotalDue as decimal(19,4),",
+				"          Comment as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> orderHeader",
+				"     limit: 100,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> orderHeader",
 				"Customers select(skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> CustomerDataset"
 			]
