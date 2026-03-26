@@ -1,5 +1,5 @@
 {
-	"name": "DS_SQL_DATASETS_CUS",
+	"name": "DS_SQL_DATASETS_ORD",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "LS_ADLS_CSV",
@@ -15,7 +15,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "customer20262707",
+				"fileName": "salesorderheader20262707",
 				"folderPath": "SqlDatasets",
 				"fileSystem": "big"
 			},

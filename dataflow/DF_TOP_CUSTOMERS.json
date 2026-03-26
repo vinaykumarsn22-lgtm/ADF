@@ -6,14 +6,14 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "DS_SQL_DATASETS",
+						"referenceName": "DS_SQL_DATASETS_CUS",
 						"type": "DatasetReference"
 					},
 					"name": "Customers"
 				},
 				{
 					"dataset": {
-						"referenceName": "DS_SQL_DATASETS",
+						"referenceName": "DS_SQL_DATASETS_ORD",
 						"type": "DatasetReference"
 					},
 					"name": "orderHeader"
@@ -28,6 +28,7 @@
 			"scriptLines": [
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     limit: 100,",
 				"     ignoreNoFilesFound: false) ~> Customers",
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
