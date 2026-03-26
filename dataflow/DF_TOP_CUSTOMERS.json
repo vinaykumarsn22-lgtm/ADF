@@ -23,10 +23,45 @@
 			"transformations": [
 				{
 					"name": "CustomerDataset"
+				},
+				{
+					"name": "CustomerUpdated"
+				},
+				{
+					"name": "CustomerFinal"
+				},
+				{
+					"name": "OrdersFinal"
+				},
+				{
+					"name": "JoinCustomerOrder"
+				},
+				{
+					"name": "JoinedDataset"
+				},
+				{
+					"name": "rank1"
 				}
 			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
+				"source(output(",
+				"          CustomerID as integer,",
+				"          NameStyle as boolean,",
+				"          Title as string,",
+				"          FirstName as string,",
+				"          MiddleName as string,",
+				"          LastName as string,",
+				"          Suffix as string,",
+				"          CompanyName as string,",
+				"          SalesPerson as string,",
+				"          EmailAddress as string,",
+				"          Phone as string,",
+				"          PasswordHash as string,",
+				"          PasswordSalt as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     limit: 100,",
 				"     ignoreNoFilesFound: false,",
@@ -60,8 +95,45 @@
 				"     limit: 100,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> orderHeader",
-				"Customers select(skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> CustomerDataset"
+				"Customers select(mapColumn(",
+				"          CustomerID,",
+				"          FirstName,",
+				"          MiddleName,",
+				"          LastName,",
+				"          Phone",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> CustomerDataset",
+				"CustomerDataset derive(FullName = concatWS(' ', FirstName, MiddleName, LastName)) ~> CustomerUpdated",
+				"CustomerUpdated select(mapColumn(",
+				"          CustomerID,",
+				"          FullName,",
+				"          Phone",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> CustomerFinal",
+				"orderHeader select(mapColumn(",
+				"          CustomerID,",
+				"          TotalDue",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> OrdersFinal",
+				"CustomerFinal, OrdersFinal join(CustomerFinal@CustomerID == OrdersFinal@CustomerID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinCustomerOrder",
+				"JoinCustomerOrder select(mapColumn(",
+				"          CustomerID = CustomerFinal@CustomerID,",
+				"          FullName,",
+				"          Phone,",
+				"          TotalDue",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> JoinedDataset",
+				"JoinedDataset rank(desc(TotalDue, true),",
+				"     output(rank as long),",
+				"     dense: true) ~> rank1"
 			]
 		}
 	}
